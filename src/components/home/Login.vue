@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import jwt_decode from 'jwt-decode';
 export default {
   data () {
     return {
@@ -56,9 +57,20 @@ export default {
             console.log(response)
             that.Load=false
             if (response.data.code === 200) {
-                sessionStorage.setItem('token',response.data.data.token)
-                //跳转到新闻推荐页，显示登录状态 
-                that.$router.push('/personal')
+                let token = response.data.data.token
+                sessionStorage.setItem('token',token)
+                console.log(jwt_decode(token))
+                let role = jwt_decode(token).roleName
+                if(role=='admin'){//管理员
+
+                }else if(role=='publisher'){//发布者
+                    that.$router.push('/personal')
+                }else if(role=='auditor'){//审核员
+
+                }else{//用户
+                    //跳转到新闻推荐页，显示登录状态 
+                    that.$router.push('/')
+                }
             }else{
                 that.$message({
                     message: response.data.msg,

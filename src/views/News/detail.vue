@@ -18,7 +18,7 @@
                 <p style="cursor:pointer;" @click="comeTo(userId)">作者：{{username}}</p>
                 <div>
                     <p class="author">标签：{{author}}
-                    <el-button type="danger" icon="el-icon-thumb" @click="like">{{likeId!=null?likeNum:"点赞"}}</el-button>
+                    <el-button type="danger" icon="el-icon-thumb" @click="like">{{isLike?likeNum:"点赞"}}</el-button>
                     <!-- <el-button type="warning" icon="el-icon-star-off" @click="collect">{{collectId!=null?collectNum:"收藏"}}</el-button> -->
                     </p>
                     <!-- <p class="gray">{{time}}&nbsp;|&nbsp;来源于：{{comeFrom}}</p> -->
@@ -57,7 +57,7 @@ export default {
       },
       token:'',
       newsId:1,
-      likeId:null,
+      isLike:null,
       likeNum:0,
       collectId:null,
       collectNum:0,
@@ -133,12 +133,11 @@ export default {
         console.log(response)
         if(response.data.code===200){
           if(type =='like'){
-            that.likeId=response.data.data
-            if(method=="delete"){
-              that.likeId=null
-              that.likeNum-=1
-            }
-            else that.likeNum+=1
+            that.likeId=1
+            that.likeNum+=1
+          }else if(type=='dlike'){
+            that.likeId=null
+            that.likeNum-=1
           }else if(type=='collect'){
             that.collectId=response.data.data
             if(method=="delete") {
@@ -174,7 +173,7 @@ export default {
       }).then(function(response) {
         // console.log(response)
         let news = response.data.data
-        console.log(news)
+        // console.log(news)
         if(response.data.code===200){
           if(news.image!=null) that.image = "https://demo.xqstudy.top"+news.image
           that.recomendTitle = news.title
@@ -183,7 +182,8 @@ export default {
           that.author = news.plateName
           that.username= news.nickName
           that.userId = news.userId
-          that.likeNum = news.likeNum
+          that.likeNum = parseInt(news.likeNum)
+          that.isLike=news.isLike
         }else{
           that.$message({
             message: response.data.msg,
@@ -210,14 +210,35 @@ export default {
         that.commentNum = comments.length
         if(response.data.code===200){
           that.commentList=[]
+          let indexNum=1
           for(let item of comments){
+            // 获取二级评论
+            let children = []
+            for(let sec of item.replyList){
+                  // console.log(sec)
+                  let chird ={
+                    id: indexNum++,
+                    index:sec.replyId,
+                    commentUser: {
+                      id: sec.userId,
+                      nickName: sec.nickName,
+                      avatar: sec.avatar||"https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
+                    },
+                    targetUser: {
+                      id: sec.toUserId,
+                      nickName: item.nickName,
+                      avatar:sec.toAvatar||"https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
+                    },
+                    content: sec.content,
+                    createDate: sec.createTime.substring(0,10)+" "+item.createTime.substring(11,19),
+                  }
+                  // console.log(chird)
+                  children.push(chird)
+                }
+
             let comment ={
-              id: item.comId,
-              // like:{
-              //   isLike:item.like,
-              //   likeId:item.likeId,
-              //   likeNum:item.likeNum
-              // },
+              id: indexNum++,
+              index:item.comId,
               commentUser: {
                 id: item.userId,
                 nickName: item.nickName,
@@ -225,8 +246,9 @@ export default {
               },
               content:item.comment,
               createDate: item.createTime.substring(0,10)+" "+item.createTime.substring(11,19),
-              childrenList: item.replyList,
+              childrenList: children,
             }
+            // console.log(comment)  
             that.commentList.push(comment)
           }
         }else{
@@ -245,9 +267,17 @@ export default {
     },
     like(){
       if(this.likeId!=null){
-        this.myaxios("delete","/api/like/cancelLike?type=1&likeId="+this.likeId,"like")
+        let data = {
+          "newsId":this.newsId,
+          "ops":0
+        }
+        this.myaxios("post","/api/news/like","dlike",data)
       }else{
-        this.myaxios("put","/api/like/giveLike?type=1&Id="+this.newsId,"like")
+        let data = {
+          "newsId":this.newsId,
+          "ops":1
+        }
+        this.myaxios("post","/api/news/like",'like',data)
       }
     },
     collect(){
@@ -266,16 +296,16 @@ export default {
       this.myaxios("post","/api/comment/add","comment",data)
     },
     doChidSend(args) {
-      // console.log("评论区发送按钮点击事件：");
+      // console.log("评论区发送按钮点击事件：");、、
+      // console.log(args)
       // console.log("content=" + args[0]);
       // console.log("targetUserId=" + args[1]);
       // console.log("父级评论id=" + args[2]);
       let data  = {
-        "commentId": args[2],
+        "comId": args[2],
         "content": args[0],
-        "toUserId": args[1] //专门回复某个人
         }
-      this.myaxios("post","/api/comment/SecondCom","comment",data)
+      this.myaxios("post","/api/reply/add","comment",data)
     },
   },
 }

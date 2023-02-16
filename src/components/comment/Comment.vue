@@ -95,7 +95,7 @@
             </div>
           </div>
 
-          <i class="el-icon-delete-solid" @click="deleteCom('1',item.id)"></i>
+          <i class="el-icon-delete-solid" @click="deleteCom('1',item.index)" v-if="item.commentUser.id==myId"></i>
 
           <div
             class="comment"
@@ -116,8 +116,7 @@
               <div
                 :class="pBodyMap[item.id] ? 'OwO' : 'OwO OwO-open'"
                 class="emoj publish"
-                :style="{ width: emojiWidth }"
-              >
+                :style="{ width: emojiWidth }">
                 <div class="OwO-logo" @click="pBodyStatus(item.id)">
                   <span>Emoji表情</span>
                 </div>
@@ -138,7 +137,7 @@
               <div class="publish publish-btn">
                 <button
                   class="btn"
-                  @click="doChidSend(item.id, item.commentUser.id, item.id)"
+                  @click="doChidSend(item.id, item.commentUser.id, item.index)"
                 >
                   发送
                 </button>
@@ -151,7 +150,7 @@
         </div>
       </div>
 
-      <div class="children" v-for="(ritem, jndex) in item.childrenList">
+      <div class="children" v-for="(ritem, index) in item.childrenList">
         <div class="reply"></div>
         <div class="content">
           <div class="comment-f">
@@ -203,7 +202,7 @@
               </div>
             </div>
 
-            <i class="el-icon-delete-solid" @click="deleteCom('2',ritem.id)"></i>
+            <i class="el-icon-delete-solid" @click="deleteCom('2',ritem.index)" v-if="ritem.commentUser.id==myId"></i>
 
             <div
               class="comment"
@@ -265,6 +264,8 @@
 
 <script>
 import avatar from "./avatar.vue";
+import jwt_decode from 'jwt-decode';
+
 export default {
   props: {
     emojiWidth: {
@@ -355,6 +356,7 @@ export default {
   },
   data() {
     return {
+      myId:'',
       replyMap: [],
       buttonMap: [],
       pBodyMap: [],
@@ -499,14 +501,13 @@ export default {
       return str;
     },
     doReply(index) {
-      // this.$set(this.replyMap, index, true);
-      console.log(this.replyMap[index]);
+      this.$set(this.replyMap, parseInt(index), true);
     },
 
     pBodyStatus(index) {
       this.$set(this.pBodyMap, index, !this.pBodyMap[index]);
     },
-    myaxios(method,url,type,id){
+    myaxios(method,url,type,data,id){
       let that = this
       this.axios({
         method:method,
@@ -514,6 +515,7 @@ export default {
         header:{
           "token":this.token
         },
+        data:data,
       }).then(function(response) {
         console.log(response)
         if(response.data.code===200){
@@ -584,8 +586,6 @@ export default {
           this.myaxios("delete","/api/like/cancelLike?type=3&likeId="+likeid,"likeS",id)
         }
       }
-
-
     },
     deleteCom(type,id){
       this.$confirm('确定删除此条评论吗?', '提示', {
@@ -594,9 +594,9 @@ export default {
           type: 'warning'
         }).then(() => {
           if(type=='1'){
-            this.myaxios("delete","/api/comment/FirstCom?commentId="+id,"deleteFirst")
+            this.myaxios("delete","/api/comment/delete?comId="+id,"deleteFirst")
           }else{
-            this.myaxios("delete","/api/comment/SecondCom?replayId="+id,"deleteSecond")
+            this.myaxios("delete","/api/reply/delete?replyId="+id,"deleteSecond")
           }
         }).catch(() => {
           this.$message({
@@ -612,6 +612,9 @@ export default {
   },
   created() {
     //生命周期函数
+    let token = jwt_decode(sessionStorage.getItem('token',token))
+    // console.log(token)
+    this.myId = token.userId
   },
   mounted() {
     //页面加载完成后
