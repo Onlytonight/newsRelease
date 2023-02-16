@@ -75,6 +75,7 @@ export default {
       changeProfile: {
         nickName: "", //昵称
         avatar: "", //头像
+        alt:""
       },
       uploadHeader: {
         'token': window.sessionStorage.getItem('token')
@@ -87,30 +88,31 @@ export default {
   methods: { 
     handleAvatarSuccess(res, image) {
       console.log(res);
-      // this.changeProfile.avatar="https://demo.xqstudy.top"+res.data
-      this.axios({
-        method: "POST",
-        url: "/api/common/upload/image",
-        headers: {'Content-Type': 'multipart/form-data'},
-        data: {
-          image: image
-        }
-      }).then(res => { 
-        console.log(res);
-        this.changeProfile=res.data.data
-      }).catch(err => { 
-        console.log(err);
-      })
+      this.changeProfile.avatar =  res.data.url;
+      this.changeProfile.alt=res.data.alt
+      // this.axios({
+      //   method: "POST",
+      //   url: "/api/common/upload/image",
+      //   headers: {'Content-Type': 'multipart/form-data'},
+      //   data: {
+      //     image: image
+      //   }
+      // }).then(res => { 
+      //   console.log(res);
+      //   this.changeProfile=res.data.data
+      // }).catch(err => { 
+      //   console.log(err);
+      // })
         // this.changeProfile.avatar = URL.createObjectURL(file.raw);
       },
     beforeAvatarUpload(file) {
         console.log(file);
-        // const isJPG = file.type === 'image/jpeg';
+        const isJPG = file.type === 'image/jpeg';
         const isLt5M = file.size / 1024 / 1024 < 5;
 
-        // if (!isJPG) {
-        //   this.$message.error('上传头像图片只能是 JPG 格式!');
-        // }
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
         if (!isLt5M) {
           this.$message.error('上传头像图片大小不能超过 5MB!');
         }

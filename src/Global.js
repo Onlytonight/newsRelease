@@ -1,12 +1,7 @@
 
 
 exports.install = function (Vue) {
-<<<<<<< HEAD
-  Vue.prototype.$target="http://106.52.150.170:8080"
-  // Vue.prototype.$target="http://106.52.150.170:8080/"
-=======
   Vue.prototype.$target="http://106.52.150.170:8080/"
->>>>>>> 4233de7afe8b2e3541c4ae62bad3dfc4f8df99ca
   // 封装提示成功的弹出框
   Vue.prototype.notifySucceed = function (msg) {
     this.$notify({
