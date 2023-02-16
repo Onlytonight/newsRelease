@@ -10,14 +10,14 @@
       <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-document-copy"></i>
-          <span>审核员管理</span>
+          <span>发布者管理</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item index="1-1">
-            <router-link to="/admin/auditorslist">
-              审核员列表
-            </router-link>
-          </el-menu-item>
+          <router-link to="/admin/auditorslist">
+            <el-menu-item index="1-1">
+            发布申请
+            </el-menu-item>
+          </router-link>
         </el-menu-item-group>
       </el-submenu>
       <el-submenu index="2">
@@ -26,16 +26,29 @@
           <span>用户账号管理</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item index="2-1">
-            <router-link to="/admin/userslist">
-              用户列表
-            </router-link>
-          </el-menu-item>
-          <el-menu-item index="2-2">
-            <router-link to="/admin/banlist">
-              封禁用户列表
-            </router-link>
-          </el-menu-item>
+          <router-link to="/admin/userslist">
+            <el-menu-item index="2-1">
+                用户列表
+            </el-menu-item>
+          </router-link>
+          <!-- <router-link to="/admin/banlist">
+            <el-menu-item index="2-2">
+                封禁用户列表
+            </el-menu-item>
+          </router-link> -->
+        </el-menu-item-group>
+      </el-submenu>
+      <el-submenu index="3">
+        <template slot="title">
+          <i class="el-icon-s-fold"></i>
+          <span>栏目管理</span>
+        </template>
+        <el-menu-item-group>
+          <router-link to="/admin/column">
+            <el-menu-item index="3-1">
+              栏目列表
+            </el-menu-item>
+          </router-link>
         </el-menu-item-group>
       </el-submenu>
     </el-menu>

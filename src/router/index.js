@@ -67,8 +67,11 @@ export default new Router({
         {
           path: '/admin/banlist',
           component: ()=>import('../components/admin/BanUsersList.vue')
+        },
+        {
+          path: '/admin/column',
+          component: ()=>import('../components/admin/columnList.vue')
         }
-
       ]
       // children: [
       //   {

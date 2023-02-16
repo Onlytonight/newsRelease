@@ -5,11 +5,11 @@
         共获取<span style="color: #f56c6c;">{{auditorsList.length}}</span>条审核员账号信息
       </span>
 
-      <div>
+      <!-- <div>
         <el-button type="primary" icon="el-icon-plus" @click="addAuditor">
           新建审核员账号
         </el-button>
-      </div>
+      </div> -->
     </div>
     <div class="auditorsList">
       <el-table
@@ -18,54 +18,47 @@
         :header-cell-style="{background:'#E8EBEF'}"
         >
         <el-table-column
-          label="审核员ID"
-          width="250">
+          label="名称"
+          width="150">
           <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.auditId }}</span>
+            <span style="margin-left: 10px">{{ scope.row.realName }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="账号"
-          width="350">
+          label="公司"
+          width="200">
           <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.account }}</span>
+            <span style="margin-left: 10px">{{ scope.row.company }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="密码"
-          width="350">
+          label="申请时间"
+          width="200">
           <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.pwd }}</span>
+            <span style="margin-left: 10px">{{ scope.row.applyTime }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="状态">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ scope.row.approveStatus!=0?scope.row.approveStatus==1?"已通过":"未通过":"未审核" }}</span>
+            <!-- <span style="margin-left: 10px">{{ scope.row.approveStatus==0?"不通过":"已通过" }}</span> -->
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="handleEdit(scope.$index, scope.row)">修改密码</el-button>
+              @click="pass(1, scope.row.id)">通过</el-button>
             <el-button
               size="mini"
               type="danger"
-              @click="handleDelete(scope.$index, scope.row)">注销账号</el-button>
+              @click="pass(2, scope.row.id)">不通过</el-button>
           </template>
         </el-table-column>
         </el-table>
     </div>
-    <!-- 新建账号弹框 -->
-    <el-dialog title="新建审核员账号" :visible.sync="dialogFormVisible" width="30%">
-      <el-form :model="accountForm"  :rules="rules" ref="accountForm" label-width="100px" class="demo-accountForm">
-        <el-form-item label="账号" prop="account" >
-          <el-input type="text" v-model="accountForm.account" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="pwd">
-          <el-input type="password" v-model="accountForm.pwd" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="resetForm('accountForm')">取 消</el-button>
-        <el-button type="primary" @click="addAuditor('accountForm')">确 定</el-button>
-      </div>
-    </el-dialog>
+    
     <!-- 修改密码弹框 -->
     <el-dialog title="修改审核员密码" :visible.sync="changeFormVisible" width="30%">
       <el-form :model="changeForm"  :rules="rules" ref="changeForm" label-width="100px" class="demo-accountForm">
@@ -93,28 +86,46 @@ export default {
       auditorsList: [],
       dialogFormVisible: false,
       changeFormVisible:false,
-      accountForm: {
-        account:'',
-          pwd: '',
-      },
+
       changeForm: {
         account: '',
         pwd:''
       },
-      rules: {
-        account: [
-            {  min: 8, max: 16, message: '账号必须为8-16位',required:true,trigger: 'blur'}
-          ],
-        pwd: [
-          {min: 6, max: 16, message: '密码长度不小于6位，不大于16位',required:true, trigger: 'blur' }
-        ],
-      }
     }
   },
   mounted() { 
     this.getAuditorsList();
   },
   methods: {
+    pass(e,id){
+      console.log(e,id)
+      let token = sessionStorage.getItem("token")
+      this.axios({
+        method: "POST",
+        url: "/api/apply/publisher/audit",
+        header:token,
+        data:{
+          approveStatus:e,
+          id:id
+        }
+      }).then(res => { 
+        if (res.data.msg==="ok") {
+          this.$message({
+            type:'success',
+            message: "操作成功"
+          }) 
+          location. reload()
+
+        }else{
+          this.$message({
+          type:'warning',
+          message: res.data.msg
+        }) 
+        }
+      }).catch(err => { 
+        console.log(err);
+      })
+    },
     handleEdit(index, row) {
       this.changeForm.account = row.account;
       this.changeFormVisible = true;
@@ -127,7 +138,7 @@ export default {
     getAuditorsList() { 
       this.axios({
         method: "GET",
-        url:"/api/admin/listAudit?current=2&size=1"
+        url:"/api/apply/publisher/list"
       }).then(res => { 
         console.log(res);
         this.auditorsList = res.data.data.records;
@@ -136,32 +147,6 @@ export default {
       })
     },
     // 新建管理员账号
-    addAuditor(formName) {
-      this.dialogFormVisible = true;
-      this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.axios({
-              method: "POST",
-              url: "/api/admin/addAudit",
-              data:this.accountForm
-            }).then(res => { 
-              console.log(res);
-              this.$message({
-                type:'success',
-                message: "新建账号成功"
-              }) 
-            }).catch(err => { 
-              console.log(err);
-            })
-          } else {
-            this.$message({
-                type:'error',
-                message: "账号/密码不符合要求"
-              });
-            return false;
-          }
-      });
-    },
     // 修改密码
     changeAuditorPwd(formName) {
       this.$refs[formName].validate((valid) => {

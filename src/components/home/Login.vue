@@ -62,7 +62,7 @@ export default {
                 console.log(jwt_decode(token))
                 let role = jwt_decode(token).roleName
                 if(role=='admin'){//管理员
-
+                    that.$router.push('/admin')
                 }else if(role=='publisher'){//发布者
                     that.$router.push('/personal')
                 }else if(role=='auditor'){//审核员
