@@ -9,8 +9,8 @@
             <div class="grid-content bg-purple-dark">
               <el-carousel :height="bannerHeight + 'px'">
                 <!--遍历图片地址,动态生成轮播图-->
-                <el-carousel-item v-for="item in img_list" :key="item.newsId">
-                  <img :src="'https://demo.xqstudy.top'+item.image" alt @click="newsDetail(item.newsId)"/>
+                <el-carousel-item v-for="item in img_list" :key="item.id">
+                  <img :src="item.coverUrl" @click="newsDetail(item.id)"/>
                 </el-carousel-item>
               </el-carousel>
             </div>
@@ -20,17 +20,17 @@
           <el-col :span="12">
             <div class="grid-content">
               <div class="three-left" >
-                <el-skeleton-item v-if="middle_list[0].image==null" variant="image" />
-                <img v-else v-bind:src="'https://demo.xqstudy.top'+middle_list[0].image" @click="newsDetail(middle_list[0].newsId)">
-
+                <!-- <el-skeleton-item v-if="middle_list[0].image==null" variant="image" /> -->
+                <!-- <img v-else v-bind:src="'https://demo.xqstudy.top'+middle_list[0].image" @click="newsDetail(middle_list[0].newsId)"> -->
+                <img v-bind:src="middle_list[0].coverUrl" @click="newsDetail(middle_list[0].id)">
               </div>
             </div>
           </el-col>
           <el-col :span="12">
             <div class="grid-content">
               <div class="two-right">
-                <div v-for="item in middle_list" :key="item.newsId" class="item">
-                  <div @click="newsDetail(item.newsId)">{{item.title}}</div>
+                <div v-for="item in middle_list" :key="item.id" class="item">
+                  <div @click="newsDetail(item.id)">{{item.content}}</div>
                 </div>
               </div>
             </div>
@@ -59,17 +59,17 @@
               <el-col :span="12">
                 <div class="grid-content">
                   <div class="three-left">
-                    <el-skeleton-item v-if="news.image==null" variant="image" />
-                    <img v-else v-bind:src="'https://demo.xqstudy.top'+news.image" @click="newsDetail(news.newsId)">
+                    <!-- <el-skeleton-item v-if="news.image==null" variant="image" /> -->
+                    <!-- <img v-else v-bind:src="'https://demo.xqstudy.top'+news.image" @click="newsDetail(news.newsId)"> -->
                   </div>
                 </div>
               </el-col>
               <el-col :span="12">
                 <div class="grid-content">
                   <div class="two-right">
-                    <h6 @click="newsDetail(news.newsId)">{{news.title}}</h6>
+                    <h6 @click="newsDetail(news.id)">{{news.title}}</h6>
                     <!-- <label>作者：{{news.username}}</label> -->
-                    <p @click="newsDetail(news.newsId)" v-html="news.content"></p>
+                    <p @click="newsDetail(news.id)" v-html="news.content"></p>
                   </div>
                 </div>
               </el-col>
@@ -177,17 +177,20 @@ export default {
     },
   },
   mounted(){
-    this.newsClass("-1")
+    // this.newsClass("-1")
     document.addEventListener('scroll', this.debounce(this.load, 500))
     let that = this
       this.axios({
         method:'get',
-        url:'/api/search/recommend',
+        url:'/api/news/hot',
+        header:{
+          token:sessionStorage.getItem("token")
+        }
       }).then(function(response) {
         console.log(response)
         if(response.data.code===200){
-          that.img_list = response.data.data.top
-          that.middle_list = response.data.data.middle
+          that.img_list = response.data.data
+          that.middle_list = response.data.data.slice(0,4)
         }else{
           if(response.data.code!=3001)
             that.$message({
