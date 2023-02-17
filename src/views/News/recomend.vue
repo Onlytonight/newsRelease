@@ -46,13 +46,14 @@
         <el-row class="Class">
           <el-col :span="24">
             <el-tabs v-model="activeName" @tab-click="handleClick" stretch="true">
-              <el-tab-pane label="首页" name="first"></el-tab-pane>
-              <el-tab-pane label="时政" name="second"></el-tab-pane>
+              
+              <el-tab-pane v-for="column in columnList" :key="column.id" v-bind:label="column.name" name="first"></el-tab-pane>
+              <!-- <el-tab-pane label="时政" name="second"></el-tab-pane>
               <el-tab-pane label="文教" name="third"></el-tab-pane>
               <el-tab-pane label="科技" name="fourth"></el-tab-pane>
               <el-tab-pane label="体育" name="fifth"></el-tab-pane>
               <el-tab-pane label="社会" name="sixth"></el-tab-pane>
-              <el-tab-pane label="其他" name="seventh"></el-tab-pane>
+              <el-tab-pane label="其他" name="seventh"></el-tab-pane> -->
             </el-tabs>
 
             <el-row class="bg-purple-light" v-for="news in news_list" :key="news.newsId">
@@ -95,6 +96,7 @@ export default {
         back:false
       },
       img_list: [img, img, img, img],
+      columnList:[],
       middle_list:[],
       news_list:[],
       news_getlist:[],
@@ -191,6 +193,31 @@ export default {
         if(response.data.code===200){
           that.img_list = response.data.data
           that.middle_list = response.data.data.slice(0,4)
+        }else{
+          if(response.data.code!=3001)
+            that.$message({
+              message: response.data.msg,
+              type: 'warning'
+            });
+        }
+      }).catch(function (error) { // 请求失败处理
+        console.log(error);
+        that.$message({
+          message: error,
+          type: 'error'
+        });
+      });
+
+      this.axios({
+        method:'get',
+        url:'/api/plate/list',
+        header:{
+          token:sessionStorage.getItem("token")
+        }
+      }).then(function(response) {
+        console.log(response)
+        if(response.data.code===200){
+          that.columnList = response.data.data.records
         }else{
           if(response.data.code!=3001)
             that.$message({
