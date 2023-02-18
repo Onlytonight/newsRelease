@@ -9,8 +9,8 @@
             <div class="grid-content bg-purple-dark">
               <el-carousel :height="bannerHeight + 'px'">
                 <!--遍历图片地址,动态生成轮播图-->
-                <el-carousel-item v-for="item in img_list" :key="item.newsId">
-                  <img :src="'https://demo.xqstudy.top'+item.image" alt @click="newsDetail(item.newsId)"/>
+                <el-carousel-item v-for="(item,index) in img_list" :key="index">
+                  <img :src="item.coverUrl" @click="newsDetail(item.id)"/>
                 </el-carousel-item>
               </el-carousel>
             </div>
@@ -20,17 +20,17 @@
           <el-col :span="12">
             <div class="grid-content">
               <div class="three-left" >
-                <el-skeleton-item v-if="middle_list[0].image==null" variant="image" />
-                <img v-else v-bind:src="'https://demo.xqstudy.top'+middle_list[0].image" @click="newsDetail(middle_list[0].newsId)">
-
+                <!-- <el-skeleton-item v-if="middle_list[0].image==null" variant="image" /> -->
+                <!-- <img v-else v-bind:src="'https://demo.xqstudy.top'+middle_list[0].image" @click="newsDetail(middle_list[0].newsId)"> -->
+                <img v-bind:src="middle_list[0].coverUrl" @click="newsDetail(middle_list[0].id)">
               </div>
             </div>
           </el-col>
           <el-col :span="12">
             <div class="grid-content">
               <div class="two-right">
-                <div v-for="item in middle_list" :key="item.newsId" class="item">
-                  <div @click="newsDetail(item.newsId)">{{item.title}}</div>
+                <div v-for="item in middle_list" :key="item.id" class="item">
+                  <div @click="newsDetail(item.id)">{{item.content}}</div>
                 </div>
               </div>
             </div>
@@ -45,31 +45,32 @@
 
         <el-row class="Class">
           <el-col :span="24">
-            <el-tabs v-model="activeName" @tab-click="handleClick" stretch="true">
-              <el-tab-pane label="首页" name="first"></el-tab-pane>
-              <el-tab-pane label="时政" name="second"></el-tab-pane>
+            <el-tabs v-model="activeName" @tab-click="handleClick" v-bind:stretch="true">
+              <el-tab-pane v-for="(column,index) in columnList" :key="index" v-bind:label="column.name" v-bind:name="column.id"></el-tab-pane>
+              <!-- <el-tab-pane label="时政" name="second"></el-tab-pane>
               <el-tab-pane label="文教" name="third"></el-tab-pane>
               <el-tab-pane label="科技" name="fourth"></el-tab-pane>
               <el-tab-pane label="体育" name="fifth"></el-tab-pane>
               <el-tab-pane label="社会" name="sixth"></el-tab-pane>
-              <el-tab-pane label="其他" name="seventh"></el-tab-pane>
+              <el-tab-pane label="其他" name="seventh"></el-tab-pane> -->
             </el-tabs>
 
             <el-row class="bg-purple-light" v-for="news in news_list" :key="news.newsId">
               <el-col :span="12">
                 <div class="grid-content">
                   <div class="three-left">
-                    <el-skeleton-item v-if="news.image==null" variant="image" />
-                    <img v-else v-bind:src="'https://demo.xqstudy.top'+news.image" @click="newsDetail(news.newsId)">
+                    <img :src="news.coverUrl" @click="newsDetail(news.id)"/>
+                    <!-- <el-skeleton-item v-if="news.image==null" variant="image" /> -->
+                    <!-- <img v-else v-bind:src="'https://demo.xqstudy.top'+news.image" @click="newsDetail(news.newsId)"> -->
                   </div>
                 </div>
               </el-col>
               <el-col :span="12">
                 <div class="grid-content">
                   <div class="two-right">
-                    <h6 @click="newsDetail(news.newsId)">{{news.title}}</h6>
+                    <h6 @click="newsDetail(news.id)">{{news.title}}</h6>
                     <!-- <label>作者：{{news.username}}</label> -->
-                    <p @click="newsDetail(news.newsId)" v-html="news.content"></p>
+                    <p @click="newsDetail(news.id)" v-html="news.content"></p>
                   </div>
                 </div>
               </el-col>
@@ -95,6 +96,7 @@ export default {
         back:false
       },
       img_list: [img, img, img, img],
+      columnList:[],
       middle_list:[],
       news_list:[],
       news_getlist:[],
@@ -121,7 +123,9 @@ export default {
       let scrollTop=document.documentElement.scrollTop//滚动条在Y轴滚动过的高度
       let scrollHeight=document.documentElement.scrollHeight//滚动条的高度
       let clientHeight=document.documentElement.clientHeight//浏览器的可视高度
-      if(scrollTop + clientHeight == scrollHeight){
+      // console.log(scrollTop+clientHeight,scrollHeight)
+      if(scrollTop + clientHeight+1 >= scrollHeight){
+      // if(1389 == scrollHeight){
         console.log('触底了');
         if(this.news_getlist.length==0){
           return ;
@@ -135,9 +139,9 @@ export default {
       }
     },
     handleClick(tab, event) {
-      // console.log(tab, event,tab.index);
+      console.log(tab, event,tab.index);
       console.log(tab.index)
-      this.newsClass(tab.index-1)
+      this.newsClass(this.columnList[tab.index].id)
     },
     newsDetail(id){
       window.removeEventListener('scroll', this.load);
@@ -147,14 +151,15 @@ export default {
       let that = this
       this.axios({
         method:'get',
-        url:'/api/search/news?kind='+clas,
+        url:'/api//news/newsList?plateId='+clas,
       }).then(function(response) {
-        console.log(response)
+        console.log(response.data.data.records)
         if(response.data.code===200){
           if(response.data.data.records.length!=0){
             let record = response.data.data.records[0]
             that.news_getlist = response.data.data.records
             that.news_getlist.splice(0,1);
+            // console.log(that.news_getlist)
             that.news_list=[]
             that.news_list.push(record)
             console.log(record)
@@ -177,17 +182,46 @@ export default {
     },
   },
   mounted(){
-    this.newsClass("-1")
     document.addEventListener('scroll', this.debounce(this.load, 500))
     let that = this
       this.axios({
         method:'get',
-        url:'/api/search/recommend',
+        url:'/api/news/hot',
+        header:{
+          token:sessionStorage.getItem("token")
+        }
       }).then(function(response) {
         console.log(response)
         if(response.data.code===200){
-          that.img_list = response.data.data.top
-          that.middle_list = response.data.data.middle
+          that.img_list = response.data.data
+          that.middle_list = response.data.data.slice(0,4)
+        }else{
+          if(response.data.code!=3001)
+            that.$router.push("/login")
+            that.$message({
+              message: response.data.msg,
+              type: 'warning'
+            });
+        }
+      }).catch(function (error) { // 请求失败处理
+        console.log(error);
+        that.$message({
+          message: error,
+          type: 'error'
+        });
+      });
+
+      this.axios({
+        method:'get',
+        url:'/api/plate/list',
+        header:{
+          token:sessionStorage.getItem("token")
+        }
+      }).then(function(response) {
+        console.log(response)
+        if(response.data.code===200){
+          that.columnList = response.data.data.records
+          that.newsClass(that.columnList[0].id)
         }else{
           if(response.data.code!=3001)
             that.$message({
