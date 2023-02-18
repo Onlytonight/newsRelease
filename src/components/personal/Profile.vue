@@ -90,20 +90,6 @@ export default {
       console.log(res);
       this.changeProfile.avatar =  res.data.url;
       this.changeProfile.alt=res.data.alt
-      // this.axios({
-      //   method: "POST",
-      //   url: "/api/common/upload/image",
-      //   headers: {'Content-Type': 'multipart/form-data'},
-      //   data: {
-      //     image: image
-      //   }
-      // }).then(res => { 
-      //   console.log(res);
-      //   this.changeProfile=res.data.data
-      // }).catch(err => { 
-      //   console.log(err);
-      // })
-        // this.changeProfile.avatar = URL.createObjectURL(file.raw);
       },
     beforeAvatarUpload(file) {
         console.log(file);
@@ -125,11 +111,17 @@ export default {
       this.axios({
         method: "PUT",
         url: "/api/user/updateInfo",
-        data: this.changeProfile
+        data: {
+          nickName: this.changeProfile.nickName,
+          avatar:this.changeProfile.avatar
+        } 
       }).then(res => { 
         console.log(res);
-        this.profile = res.data.data;
-        this.isChange = false;
+        if (res.data.code===200) {
+          this.getProfile();
+          this.isChange = false;
+        }
+        // this.profile = res.data.data;
       }).catch(err => { 
         console.log(err);
       })

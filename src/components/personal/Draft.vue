@@ -75,12 +75,13 @@ export default {
     this.getNewsList();
   },
   methods: {
+
     handleEdit(index, row) {
       // console.log(index, row);
       this.$router.push({
         path: '/personal/editor',
         query: {
-          newsId: row.newsId
+          newsId: row.id
         }
       })
       },
@@ -88,7 +89,7 @@ export default {
         console.log(index, row);
         this.axios({
             method: "DELETE",
-            url:"/api/news/DeleteNews?newsId="+this.newsList[index].newsId
+            url:"/api/news/delete?newsId="+this.newsList[index].id
           }).then(res => {
             console.log(res);
             this.getNewsList();
@@ -106,7 +107,7 @@ export default {
     getNewsList() { 
       this.axios({
         method: "GET",
-        url:"/api/news/ListDraft?current=1"
+        url:"/api/news/myNews?status=1"
       }).then(res => { 
         console.log(res);
         this.newsList = res.data.data.records;

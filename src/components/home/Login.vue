@@ -54,7 +54,7 @@ export default {
             "password": this.formLabelAlign.password //密码
             }
         }).then(function(response) {
-            console.log(response)
+            // console.log(response)
             that.Load=false
             if (response.data.code === 200) {
                 let token = response.data.data.token
@@ -62,14 +62,14 @@ export default {
                 console.log(jwt_decode(token))
                 let role = jwt_decode(token).roleName
                 if(role=='admin'){//管理员
-
+                    that.$router.push('/personal')
                 }else if(role=='publisher'){//发布者
                     that.$router.push('/personal')
                 }else if(role=='auditor'){//审核员
-
+                    that.$router.push('/auditor')
                 }else{//用户
                     //跳转到新闻推荐页，显示登录状态 
-                    that.$router.push('/')
+                    that.$router.push('/personal')
                 }
             }else{
                 that.$message({

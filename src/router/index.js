@@ -20,6 +20,7 @@ export default new Router({
       path: '/login',
       component: () => import('../views/LoginView.vue')
     },
+
     {
       path: '/audit',
       component: () => import('../views/AuditorView.vue')
@@ -43,7 +44,11 @@ export default new Router({
         {
           path: '/personal/editor',
           component: ()=>import('../components/personal/EditorNews.vue')
-        }
+        },
+        {
+          path: '/notice',
+          component: () => import('../components/notice/notice.vue')
+        },
       ]
     },
     {

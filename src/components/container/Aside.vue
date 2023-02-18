@@ -98,8 +98,7 @@ export default {
     }
   },
   mounted() {
-    var res = this.parseJwt(window.sessionStorage.getItem('token'));
-    this.roleName = res.roleName;
+    this.getRoleName()
     // console.log(this.parseJwt(window.sessionStorage.getItem('token')));  
   },
   methods: {
@@ -131,11 +130,17 @@ export default {
                 "company": this.accountForm.company
               }
             }).then(res => { 
-              console.log(res);
+              // console.log(res);
+              var msg = res.data.msg;
+              if (res.data.code===200) {
+                msg="恭喜您已成为新闻发布者！"
+              }
               this.$message({
                 type:'success',
-                message: "新建账号成功"
+                message: msg
               }) 
+              this.dialogFormVisible = false;
+              this.getRoleName();
             }).catch(err => { 
               console.log(err);
             })
@@ -156,6 +161,12 @@ export default {
         this.dialogFormVisible=false
       }
         this.$refs[formName].resetFields();
+    },
+    // 解析角色
+    getRoleName() {
+      var res = this.parseJwt(window.sessionStorage.getItem('token'));
+      this.roleName = res.roleName;
+      console.log(this.roleName);
     }
   }
 }

@@ -6,7 +6,7 @@
       </el-header>
 
       <el-container> 
-        <el-aside width="238px">
+        <el-aside width="220px" v-if="isShow">
             <Aside />
         </el-aside>
 
@@ -33,9 +33,16 @@ export default {
       info: {
         title: '个人中心',
         back:true
-      }
+      },
+      isShow:true
     }
   },
+  mounted() {
+    if (this.$route.fullPath==="/notice") {
+      this.isShow = false
+    }
+    // console.log(this.$route);
+  }
 
  
 }
