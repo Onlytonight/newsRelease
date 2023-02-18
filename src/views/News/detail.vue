@@ -330,7 +330,10 @@ export default {
 .personal{
   background: #F5F7FD;
 }
+.content{
+  background-color: #F0F8FF;
 
+}
 .content h6{
     font-size: 36px;
     font-family: Segoe UI-Bold, Segoe UI;
