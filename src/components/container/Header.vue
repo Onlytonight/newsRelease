@@ -29,7 +29,22 @@
           </el-badge>
           <i class="el-icon-bell myBell" v-else ></i>
         </div>
-        <el-avatar v-bind:src="avatar" @click="comeTo('/personal/news')"></el-avatar>
+        <el-dropdown>
+          <el-avatar class="el-dropdown-link" v-bind:src="avatar" @click="comeTo('/personal/news')"></el-avatar>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <router-link to="/personal/news">
+                个人中心
+              </router-link>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <router-link to="/login">
+                退出
+              </router-link>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
         <span>{{name}}</span>
       </div>
     </el-header>
