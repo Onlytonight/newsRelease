@@ -24,7 +24,7 @@
       <el-button type="info" v-if="login" class="loginBut" @click="comeTo('/login')">登录</el-button>
       <div class="user vertical"  v-else>
         <div class="notice" @click="comeTo('/notice')">
-          <el-badge :value="count" :max="99" class="item" v-if="count" >
+          <el-badge :value="count" :max="99" class="item" v-if="count>0" >
             <i class="el-icon-bell myBell"></i>
           </el-badge>
           <i class="el-icon-bell myBell" v-else ></i>
@@ -32,7 +32,7 @@
         <el-dropdown>
           <el-avatar class="el-dropdown-link" v-bind:src="avatar" @click="comeTo('/personal/news')"></el-avatar>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>
+            <el-dropdown-item v-show="roleName==='user'">
               <router-link to="/personal/news">
                 个人中心
               </router-link>
@@ -60,7 +60,8 @@ export default {
       searchInfo: '',
       count:0,
       avatar:"https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
-      name:"jay.liu",
+      name: "jay.liu",
+      roleName:'',
       searchOptions: [{
           value: '选项1',
           label: '新闻'
@@ -103,12 +104,27 @@ export default {
         });
       });
       this.getNoticeCount();
+      this.getRoleName();
     }
   },
   methods: {
     back() { 
       // this.$router.back() 
       this.$router.push('/')
+    },
+    parseJwt (token){
+      var base64Url = token.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    },
+    // 解析角色
+    getRoleName() {
+      var res = this.parseJwt(window.sessionStorage.getItem('token'));
+      this.roleName = res.roleName;
+      console.log(this.roleName);
     },
     comeTo(pos){
       this.$router.push(pos)

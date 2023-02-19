@@ -43,7 +43,11 @@
         </el-table-column>
         <el-table-column
           label="新闻栏目"
-          width="120">
+          width="120"
+          :formatter="formatter"
+          :filters="plates"
+          :filter-method="filterPlate"
+          >
           <template slot-scope="scope">
             <span style="margin-left: 10px">{{ scope.row.plateName }}</span>
           </template>
@@ -58,7 +62,7 @@
           filter-placement="bottom-end">
           <template slot-scope="scope">
             <el-tag
-              :type="scope.row.status == '0' ?'primary': (scope.row.status == '3' ? 'error': 'success') "
+              :type="scope.row.status == '0' ?'primary': (scope.row.status == '3' ? 'danger': 'success') "
               disable-transitions>{{scope.row.status == '0' ?'审核中': (scope.row.status == '3' ? '审核不通过': '审核成功')}}</el-tag>
           </template>
         </el-table-column>
@@ -76,6 +80,18 @@
         </el-table-column>
         </el-table>
     </div>
+    <div class="block" style="margin-top: 15px;">
+      <el-pagination
+      small
+      @size-change="getNewsList"
+      @current-change="getNewsList"
+      :current-page.sync="current"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="size"
+      layout="sizes, prev, pager, next"
+      :total="total">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -85,11 +101,17 @@ export default {
   data () {
     return {
       input:'',
-      newsList: []
+      newsList: [],
+      plates: [],
+      current: 1,
+      size: 10,
+      total:500
+      
       }
   },
   mounted() { 
     this.getNewsList();
+    this.getPlateList();
   },
   methods: {
     handleEdit(index, row) {
@@ -115,7 +137,8 @@ export default {
     getNewsList() { 
       this.axios({
         method: "GET",
-        url:"/api/news/myNews"
+        // url:`/api/audit/newsList?current=${this.current}&&size=${this.size}`
+        url:`/api/news/myNews?current=${this.current}&&size=${this.size}`
       }).then(res => { 
         console.log(res);
         this.newsList = res.data.data.records;
@@ -125,6 +148,10 @@ export default {
     },
     clearFilter() {
       this.$refs.filterTable.clearFilter();
+    },
+    filterPlate(value, row) {
+      console.log(row);
+      return row.plateName==value
     },
     filterTag(value, row) {
       var key = {
@@ -139,6 +166,25 @@ export default {
     formatter(row, column) {
       console.log(456);
       return row.address;
+    },
+    getPlateList() {
+      this.axios({
+        method: "GET",
+        url:"/api/plate/list"
+      }).then(res => {
+        console.log(res);
+        var records=res.data.data.records
+        this.plates = records.map(e => {
+          var obj = {
+            text: e.name,
+            value:e.name
+          }
+          return obj
+        })
+        console.log(this.plates);
+      }).catch(err => { 
+        console.log(err);
+      })
     },
   }
 }

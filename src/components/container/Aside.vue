@@ -133,7 +133,7 @@ export default {
               // console.log(res);
               var msg = res.data.msg;
               if (res.data.code===200) {
-                msg="恭喜您已成为新闻发布者！"
+                msg="已提交申请，请注意查收审核结果"
               }
               this.$message({
                 type:'success',
@@ -155,11 +155,7 @@ export default {
     },
     // 重置弹框
     resetForm(formName) {
-      if (formName=='accountForm') {
-        this.changeFormVisible=false
-      } else {
         this.dialogFormVisible=false
-      }
         this.$refs[formName].resetFields();
     },
     // 解析角色

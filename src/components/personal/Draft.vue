@@ -43,6 +43,18 @@
         </el-table-column>
         </el-table>
     </div>
+    <div class="block" style="margin-top: 15px;">
+      <el-pagination
+      small
+      @size-change="getNewsList"
+      @current-change="getNewsList"
+      :current-page.sync="current"
+      :page-sizes="[10, 20, 30, 40]"
+      :page-size="size"
+      layout="sizes, prev, pager, next"
+      :total="total">
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -52,30 +64,16 @@ export default {
   data () {
     return {
       input:'',
-      newsList: [{
-          createTime: '2016-05-02',
-          title: '王小虎',
-          type: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          createTime: '2016-05-04',
-          title: '王小虎',
-          type: '上海市普陀区金沙江路 1517 弄'
-        }, {
-          createTime: '2016-05-01',
-          title: '王小虎',
-          type: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          createTime: '2016-05-03',
-          title: '王小虎',
-          type: '上海市普陀区金沙江路 1516 弄'
-        }]
+      newsList: [],
+      current: 1,
+      size: 10,
+      total:1000
       }
   },
   mounted() { 
     this.getNewsList();
   },
   methods: {
-
     handleEdit(index, row) {
       // console.log(index, row);
       this.$router.push({
@@ -107,7 +105,8 @@ export default {
     getNewsList() { 
       this.axios({
         method: "GET",
-        url:"/api/news/myNews?status=1"
+        // url:`/api/news/myNews?current=${this.current}&&size=${this.size}`
+        url:`/api/news/myNews?status=1&&current=${this.current}&&size=${this.size}`
       }).then(res => { 
         console.log(res);
         this.newsList = res.data.data.records;

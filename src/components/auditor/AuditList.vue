@@ -88,7 +88,7 @@
       :total="total">
       </el-pagination>
     </div>
-  </div>
+    </div>
   </div>
 
 </template>

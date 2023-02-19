@@ -35,7 +35,7 @@
       <el-button type="primary" @click="saveDraft('ruleForm',0)">发布新闻</el-button>
       <el-button @click="resetForm('ruleForm')">重置</el-button>
     </el-form-item>
-</el-form>
+    </el-form>
   </div>
   </template>
   

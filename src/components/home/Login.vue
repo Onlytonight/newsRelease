@@ -64,12 +64,12 @@ export default {
                 if(role=='admin'){//管理员
                     that.$router.push('/admin')
                 }else if(role=='publisher'){//发布者
-                    that.$router.push('/personal/news')
+                    that.$router.push('/personal')
                 }else if(role=='auditor'){//审核员
-                    that.$router.push('/auditor')
+                    that.$router.push('/audit')
                 }else{//用户
                     //跳转到新闻推荐页，显示登录状态 
-                    that.$router.push('/personal/news')
+                    that.$router.push('/personal')
                 }
             }else{
                 that.$message({
