@@ -98,8 +98,7 @@ export default {
     }
   },
   mounted() {
-    var res = this.parseJwt(window.sessionStorage.getItem('token'));
-    this.roleName = res.roleName;
+    this.getRoleName()
     // console.log(this.parseJwt(window.sessionStorage.getItem('token')));  
   },
   methods: {
@@ -131,11 +130,17 @@ export default {
                 "company": this.accountForm.company
               }
             }).then(res => { 
-              console.log(res);
+              // console.log(res);
+              var msg = res.data.msg;
+              if (res.data.code===200) {
+                msg="已提交申请，请注意查收审核结果"
+              }
               this.$message({
                 type:'success',
-                message: "新建账号成功"
+                message: msg
               }) 
+              this.dialogFormVisible = false;
+              this.getRoleName();
             }).catch(err => { 
               console.log(err);
             })
@@ -150,12 +155,14 @@ export default {
     },
     // 重置弹框
     resetForm(formName) {
-      if (formName=='accountForm') {
-        this.changeFormVisible=false
-      } else {
         this.dialogFormVisible=false
-      }
         this.$refs[formName].resetFields();
+    },
+    // 解析角色
+    getRoleName() {
+      var res = this.parseJwt(window.sessionStorage.getItem('token'));
+      this.roleName = res.roleName;
+      console.log(this.roleName);
     }
   }
 }

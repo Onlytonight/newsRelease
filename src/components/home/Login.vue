@@ -54,7 +54,7 @@ export default {
             "password": this.formLabelAlign.password //密码
             }
         }).then(function(response) {
-            console.log(response)
+            // console.log(response)
             that.Load=false
             if (response.data.code === 200) {
                 let token = response.data.data.token
@@ -66,10 +66,10 @@ export default {
                 }else if(role=='publisher'){//发布者
                     that.$router.push('/personal')
                 }else if(role=='auditor'){//审核员
-
+                    that.$router.push('/audit')
                 }else{//用户
                     //跳转到新闻推荐页，显示登录状态 
-                    that.$router.push('/')
+                    that.$router.push('/personal')
                 }
             }else{
                 that.$message({
